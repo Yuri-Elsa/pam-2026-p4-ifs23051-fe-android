@@ -2,6 +2,7 @@ package org.delcom.pam_p4_ifs23051.network.plants.service
 
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import org.delcom.pam_p4_ifs23051.network.data.ResponseMessage
 import org.delcom.pam_p4_ifs23051.network.plants.data.ResponsePlant
 import org.delcom.pam_p4_ifs23051.network.plants.data.ResponsePlantAdd
@@ -17,6 +18,11 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface PlantApiService {
+
+    // Ambil profile — pakai ResponseBody mentah untuk debug
+    @GET("profile")
+    suspend fun getProfileRaw(): ResponseBody
+
     // Ambil profile developer
     @GET("profile")
     suspend fun getProfile(): ResponseMessage<ResponseProfile?>
@@ -43,7 +49,6 @@ interface PlantApiService {
     suspend fun getPlantById(
         @Path("plantId") plantId: String
     ): ResponseMessage<ResponsePlant?>
-
 
     // Ubah data tumbuhan
     @Multipart

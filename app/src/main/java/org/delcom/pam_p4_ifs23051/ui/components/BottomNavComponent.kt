@@ -3,9 +3,7 @@ package org.delcom.pam_p4_ifs23051.ui.components
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -17,11 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import org.delcom.pam_p4_ifs23051.helper.ConstHelper
 import org.delcom.pam_p4_ifs23051.helper.RouteHelper
@@ -47,7 +46,7 @@ sealed class MenuBottomNav(
     )
     object FlowerLanguage : MenuBottomNav(
         ConstHelper.RouteNames.FlowerLanguage.path,
-        "Bahasa Bunga",
+        "Bunga",
         Icons.Outlined.LocalFlorist,
         Icons.Filled.LocalFlorist,
     )
@@ -81,10 +80,13 @@ fun BottomNavComponent(navController: NavHostController) {
         tonalElevation = 2.dp,
         color          = MaterialTheme.colorScheme.surface,
     ) {
-        NavigationBar(
-            containerColor = MaterialTheme.colorScheme.surface,
-            modifier       = Modifier.height(80.dp),
-            tonalElevation = 0.dp,
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(72.dp)
+                .padding(horizontal = 8.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             items.forEach { screen ->
                 val selected = currentRoute?.startsWith(screen.route) == true
@@ -93,59 +95,61 @@ fun BottomNavComponent(navController: NavHostController) {
                     label       = "iconSize",
                 )
 
-                NavigationBarItem(
-                    selected = selected,
-                    onClick  = { RouteHelper.to(navController, screen.route, true) },
-                    icon     = {
-                        NavigationIcon(selected = selected, screen = screen, iconSize = iconSize)
-                    },
-                    label = {
-                        Text(
-                            text  = screen.title,
-                            style = MaterialTheme.typography.labelSmall,
-                        )
-                    },
-                    alwaysShowLabel = true,
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor   = MaterialTheme.colorScheme.primary,
-                        selectedTextColor   = MaterialTheme.colorScheme.primary,
-                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        indicatorColor      = Color.Transparent,
-                    ),
-                )
+                // Custom nav item agar tidak kepotong
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(12.dp))
+                        .then(
+                            if (selected)
+                                Modifier.background(
+                                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+                                )
+                            else Modifier
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    // Bungkus seluruh item dalam satu clickable
+                    Surface(
+                        onClick = { RouteHelper.to(navController, screen.route, true) },
+                        color = androidx.compose.ui.graphics.Color.Transparent,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(vertical = 8.dp),
+                        ) {
+                            Icon(
+                                imageVector        = if (selected) screen.iconActive else screen.icon,
+                                contentDescription = screen.title,
+                                modifier           = Modifier.size(iconSize),
+                                tint               = if (selected)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text      = screen.title,
+                                style     = MaterialTheme.typography.labelSmall.copy(
+                                    fontSize = 10.sp,
+                                ),
+                                color     = if (selected)
+                                    MaterialTheme.colorScheme.primary
+                                else
+                                    MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                maxLines  = 1,
+                            )
+                        }
+                    }
+                }
             }
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun NavigationIcon(
-    selected : Boolean,
-    screen   : MenuBottomNav,
-    iconSize : androidx.compose.ui.unit.Dp = 24.dp,
-) {
-    Box(
-        modifier        = Modifier.size(40.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (selected) {
-            Box(
-                modifier = Modifier
-                    .matchParentSize()
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f))
-                    .border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f), CircleShape),
-            )
-        }
-        Icon(
-            imageVector     = if (selected) screen.iconActive else screen.icon,
-            contentDescription = screen.title,
-            modifier        = Modifier.size(iconSize),
-            tint            = if (selected) MaterialTheme.colorScheme.primary
-            else MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }
 
